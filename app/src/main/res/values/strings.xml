@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Stack Overflow Users</string>
+    <string name="search_users_by_name">Search users by name</string>
+</resources>
