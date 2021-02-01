@@ -1,20 +1,34 @@
 package com.example.stackoverflowusers
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
+class StackOverflowUsersViewModel(
+    val database: UserDao,
+    application: Application,
+) : AndroidViewModel(application) {
+    var page = 1
 
-class StackOverflowUsersViewModel : ViewModel() {
+    suspend fun getUsers() : List<User> {
+        return database.getAll()
+    }
 
-    suspend fun callStackOverflowUsersApi(userName: String?): List<User> {
-        val response = ApiAdapter.apiClient.getStackOverflowUserData(userName)
+    suspend fun clearUsersForNewSearch() {
+        page = 1
+        database.deleteAll()
+    }
+
+    suspend fun callStackOverflowUsersApi(userName: String?, page: Int = 1): List<User> {
+        val response = ApiAdapter.apiClient.getStackOverflowUserData(userName, page)
         if (response.isSuccessful) {
             val data = response.body()!!
-            return data.items
+            database.insertAll(data.items)
+            val users = database.getAll()
+
+            return users
 
         } else {
-            Log.d("PAUL", "NOPE!")
-            return emptyList()
+            return database.getAll()
         }
 
     }
